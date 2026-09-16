@@ -520,6 +520,49 @@ function updateManifests(manifests, timestamp, baseUrl, assetsByHash) {
   console.log('Manifests updated');
 }
 
+function createLandingPage(baseUrl) {
+  const templatePath = path.join(projectRoot, 'server', 'templates', 'landing-page.html');
+  if (!fs.existsSync(templatePath)) return;
+
+  let appName = 'Megabyte PCB Operations';
+  try {
+    const appJsonPath = path.join(projectRoot, 'app.json');
+    const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf-8'));
+    if (appJson.expo && appJson.expo.name) {
+      appName = appJson.expo.name;
+    }
+  } catch {}
+
+  const host = baseUrl.replace(/^https?:\/\//, '');
+  const expsUrl = `exps://${host}${basePath}`;
+  const htmlTemplate = fs.readFileSync(templatePath, 'utf-8');
+
+  function escapeHtml(str) {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function toScriptString(value) {
+    return JSON.stringify(value)
+      .replaceAll('<', '\\u003c')
+      .replaceAll('>', '\\u003e')
+      .replaceAll('&', '\\u0026');
+  }
+
+  const html = htmlTemplate
+    .replace(/BASE_URL_PLACEHOLDER/g, baseUrl)
+    .replace(/EXPS_URL_ATTRIBUTE_PLACEHOLDER/g, escapeHtml(expsUrl))
+    .replace(/EXPS_URL_JSON_PLACEHOLDER/g, toScriptString(expsUrl))
+    .replace(/APP_NAME_PLACEHOLDER/g, escapeHtml(appName));
+
+  fs.writeFileSync(path.join(projectRoot, 'static-build', 'index.html'), html);
+  console.log('Landing page generated: static-build/index.html');
+}
+
 async function main() {
   console.log('Building static Expo Go deployment...');
 
@@ -570,6 +613,7 @@ async function main() {
 
   console.log('Updating manifests and creating landing page...');
   updateManifests(manifests, timestamp, baseUrl, assetsByHash);
+  createLandingPage(baseUrl);
 
   console.log('Build complete! Deploy to:', baseUrl);
 
