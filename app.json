@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Megabyte PCB Operations",
+    "slug": "megabyte-pcb-operations",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/operations-icon.png",
+    "scheme": "megabyte-pcb-operations",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {},
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
