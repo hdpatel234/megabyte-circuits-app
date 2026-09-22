@@ -25,32 +25,16 @@ function RootLayoutNav() {
   const { hydrated, isAuthenticated } = useApp();
   const segments = useSegments();
   const router = useRouter();
-  const isNavigatingRef = React.useRef(false);
 
   useEffect(() => {
     if (!hydrated) return;
 
-    const currentSegment = (segments[0] as string) || '';
-    const isPublicRoute = currentSegment === '' || currentSegment === 'index';
+    const inAuthGroup = segments[0] === '(tabs)' || segments[0] === 'order' || segments[0] === 'scanner';
 
-    if (!isAuthenticated && !isPublicRoute) {
-      if (!isNavigatingRef.current) {
-        isNavigatingRef.current = true;
-        console.log(`[AUTH] Unauthenticated access attempt to route segment "${currentSegment}". Redirecting to Login.`);
-        router.replace('/');
-        setTimeout(() => {
-          isNavigatingRef.current = false;
-        }, 300);
-      }
-    } else if (isAuthenticated && isPublicRoute) {
-      if (!isNavigatingRef.current) {
-        isNavigatingRef.current = true;
-        console.log('[AUTH] Authenticated user on public route. Redirecting to Dashboard.');
-        router.replace('/(tabs)');
-        setTimeout(() => {
-          isNavigatingRef.current = false;
-        }, 300);
-      }
+    if (!isAuthenticated && inAuthGroup) {
+      router.replace('/');
+    } else if (isAuthenticated && !inAuthGroup) {
+      router.replace('/(tabs)');
     }
   }, [hydrated, isAuthenticated, segments]);
 

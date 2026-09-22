@@ -34,7 +34,6 @@ export default function OrderDetailScreen() {
   const { jobs, updateJobStatus, hydrated, isAuthenticated } = useApp();
 
   if (!hydrated) return null;
-  if (!isAuthenticated) return <Redirect href="/" />;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

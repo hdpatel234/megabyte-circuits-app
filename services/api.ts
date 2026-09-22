@@ -21,7 +21,15 @@ export const getAuthToken = async (): Promise<string | null> => {
 };
 
 export const clearAuthToken = async () => {
-  await AsyncStorage.multiRemove([TOKEN_KEY, PERMISSIONS_KEY, USER_KEY, 'megabyte-session']);
+  await AsyncStorage.multiRemove([
+    TOKEN_KEY,
+    PERMISSIONS_KEY,
+    USER_KEY,
+    'megabyte-session',
+    'megabyte_user_permissions',
+    'megabyte_mobile_token',
+    'megabyte_user_info'
+  ]);
 };
 
 export const saveUserSession = async (token: string, user: any, permissions: string[]) => {
