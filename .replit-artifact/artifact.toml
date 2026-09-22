@@ -1,6 +1,6 @@
 kind = "mobile"
 previewPath = "/"
-title = "Megabyte PCB Operations"
+title = "Megabyte"
 description = "A mobile-first employee operations app for Megabyte’s Circuit Systems, helping factory teams monitor PCB jobs, update manufacturing stages, manage inventory, and stay on top of daily production work."
 version = "1.0.0"
 id = "artifacts/megabyte-pcb-operations"

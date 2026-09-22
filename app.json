@@ -1,17 +1,17 @@
 {
   "expo": {
-    "name": "Megabyte PCB Operations",
+    "name": "Megabyte",
     "slug": "megabyte-pcb-operations",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/company-app-icon.png",
-    "scheme": "megabyte-pcb-operations",
+    "scheme": "megabyte",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": false
     },
     "android": {
-      "package": "com.hdpatel234.megabytepcboperations",
+      "package": "com.hdpatel234.megabyte",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/company-app-icon.png",
@@ -38,6 +38,7 @@
       "eas": {
         "projectId": "e01a24bc-758c-4310-a146-2802f184270f"
       }
-    }
+    },
+    "owner": "hdpatel234"
   }
 }
