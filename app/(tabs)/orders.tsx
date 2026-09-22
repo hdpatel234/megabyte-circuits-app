@@ -14,9 +14,6 @@ export default function OrdersScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { hasPermission, refreshBootstrap } = useApp();
-
-  const canViewOrders = hasPermission('orders.view');
 
   const [query, setQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -49,12 +46,6 @@ export default function OrdersScreen() {
   }, []);
 
   const fetchOrdersFromApi = useCallback(async (pageNum: number, isRefresh: boolean = false) => {
-    if (!canViewOrders) {
-      setLoading(false);
-      setRefreshing(false);
-      return;
-    }
-
     if (pageNum === 1) setLoading(true);
     setError(null);
 
@@ -92,7 +83,7 @@ export default function OrdersScreen() {
     setLoading(false);
     setLoadingMore(false);
     setRefreshing(false);
-  }, [canViewOrders, query, selectedStatus]);
+  }, [query, selectedStatus]);
 
   useFocusEffect(
     useCallback(() => {
@@ -116,20 +107,6 @@ export default function OrdersScreen() {
   }, [page, totalPages, loadingMore, loading, fetchOrdersFromApi]);
 
   const activeFilters = Number(Boolean(selectedStatus && selectedStatus !== 'In Production'));
-
-  // Route Permission Protection Fallback
-  if (!canViewOrders) {
-    return (
-      <View style={[uiStyles.screen, { backgroundColor: colors.background, paddingHorizontal: 24, justifyContent: 'center', alignItems: 'center' }]}>
-        <View style={[styles.deniedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Feather name="shield-off" size={48} color={colors.destructive} />
-          <Text style={[styles.deniedTitle, { color: colors.foreground }]}>Access Restricted</Text>
-          <Text style={styles.deniedDetail}>You do not have the required "orders.view" permission to access the Orders management module.</Text>
-          <PrimaryButton title="Go to Home" onPress={() => router.replace('/(tabs)')} />
-        </View>
-      </View>
-    );
-  }
 
   const allStatusOptions = Array.from(new Set(['In Production', 'All', ...availableStatuses]));
 

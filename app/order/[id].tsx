@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PrimaryButton, ScreenHeader, StatusBadge, uiStyles } from '@/components/AppUI';
 import { DetailsSkeleton } from '@/components/Skeletons';
@@ -46,6 +46,8 @@ export default function OrderDetailScreen() {
   const [pending, setPending] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
+  const [updatingFilmApplied, setUpdatingFilmApplied] = useState(false);
+
   const fetchDetail = async () => {
     if (!id) return;
     setLoading(true);
@@ -66,7 +68,11 @@ export default function OrderDetailScreen() {
     }
 
     if (res.success && res.data) {
-      setJob(res.data);
+      const rawData = res.data;
+      setJob({
+        ...rawData,
+        filmApplied: Boolean(rawData.film_applied ?? rawData.filmApplied ?? false),
+      });
       if (Array.isArray(res.data.history)) {
         setHistory(res.data.history);
       }
@@ -82,6 +88,30 @@ export default function OrderDetailScreen() {
       }
     }
     setLoading(false);
+  };
+
+  const handleToggleFilmApplied = async (newValue: boolean) => {
+    if (!id || !job || updatingFilmApplied) return;
+    setUpdatingFilmApplied(true);
+    setJob((prev) => (prev ? { ...prev, filmApplied: newValue } : null));
+
+    const res = await api.updateFilmApplied(id, newValue);
+    setUpdatingFilmApplied(false);
+
+    if (res.success) {
+      const updatedRes = await api.getOrderDetails(id);
+      if (updatedRes.success && updatedRes.data) {
+        setJob({
+          ...updatedRes.data,
+          filmApplied: Boolean(updatedRes.data.film_applied ?? updatedRes.data.filmApplied ?? newValue),
+        });
+        if (Array.isArray(updatedRes.data.history)) {
+          setHistory(updatedRes.data.history);
+        }
+      }
+    } else {
+      setJob((prev) => (prev ? { ...prev, filmApplied: !newValue } : null));
+    }
   };
 
   const handleAddNote = async () => {
@@ -271,11 +301,8 @@ export default function OrderDetailScreen() {
 
           <View style={styles.infoGrid}>
             {[
-              ['Department', job.department],
               ['Due date', job.dueDate],
-              ['Panel Qty', `${(job as any).panelQty ?? (job as any).panel ?? 0} pcs`],
               ['Layers', `${job.layers}-layer`],
-              ['Film', job.film ? 'Yes' : 'No'],
               ['Mask color', job.maskColor],
             ].map(([label, value]) => (
               <View key={label} style={styles.infoCell}>
@@ -283,6 +310,32 @@ export default function OrderDetailScreen() {
                 <Text style={styles.infoValue}>{value}</Text>
               </View>
             ))}
+          </View>
+
+          {/* Film Applied Toggle Box */}
+          <View style={[styles.filmToggleCard, { backgroundColor: job.filmApplied ? '#f0fdf4' : '#f8faf9', borderColor: job.filmApplied ? '#bbf7d0' : colors.border }]}>
+            <View style={styles.filmToggleRow}>
+              <View style={styles.filmToggleLeft}>
+                <View style={[styles.filmIconBox, { backgroundColor: job.filmApplied ? '#dcfce7' : colors.secondary }]}>
+                  <Feather name="film" size={18} color={job.filmApplied ? '#15803d' : colors.mutedForeground} />
+                </View>
+                <View style={styles.filmToggleTextGroup}>
+                  <Text style={[styles.filmToggleTitle, { color: colors.foreground }]}>Film Applied</Text>
+                </View>
+              </View>
+              <View style={styles.filmToggleRight}>
+                {updatingFilmApplied ? (
+                  <ActivityIndicator size="small" color={colors.primary} />
+                ) : (
+                  <Switch
+                    value={Boolean(job.filmApplied)}
+                    onValueChange={handleToggleFilmApplied}
+                    trackColor={{ false: '#cbd5e1', true: '#22c55e' }}
+                    thumbColor="#ffffff"
+                  />
+                )}
+              </View>
+            </View>
           </View>
         </View>
 
@@ -668,5 +721,44 @@ const styles = StyleSheet.create({
   stickyBtnText: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  filmToggleCard: {
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginTop: 14,
+  },
+  filmToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filmToggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  filmIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filmToggleTextGroup: {
+    flex: 1,
+  },
+  filmToggleTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  filmToggleSub: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  filmToggleRight: {
+    marginLeft: 10,
   },
 });

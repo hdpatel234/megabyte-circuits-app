@@ -33,7 +33,7 @@ function RootLayoutNav() {
     const inTabsGroup = currentSegment === '(tabs)';
 
     if (!isAuthenticated) {
-      if (inTabsGroup || currentSegment === 'order' || currentSegment === 'inventory' || currentSegment === 'scanner' || currentSegment === 'notifications') {
+      if (inTabsGroup || currentSegment === 'order' || currentSegment === 'scanner' || currentSegment === 'notifications') {
         console.log('[AUTH] User is unauthenticated. Redirecting to Login screen.');
         router.replace('/');
       }
@@ -56,7 +56,6 @@ function RootLayoutNav() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
-      <Stack.Screen name="inventory/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="scanner" options={{ headerShown: false }} />
     </Stack>
   );

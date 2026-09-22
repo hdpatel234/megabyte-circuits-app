@@ -14,7 +14,7 @@ export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { user, isAuthenticated, notificationCount, hasPermission, refreshBootstrap } = useApp();
+  const { user, isAuthenticated, notificationCount, refreshBootstrap } = useApp();
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,8 +82,6 @@ export default function DashboardScreen() {
     loadDashboard();
   };
 
-  const canViewOrders = hasPermission('orders.view');
-
   return (
     <ScrollView
       style={[uiStyles.screen, { backgroundColor: colors.background }]}
@@ -110,8 +108,8 @@ export default function DashboardScreen() {
       {/* At a glance section */}
       <SectionHeading
         title="At a glance"
-        action={canViewOrders ? "See orders" : undefined}
-        onPress={canViewOrders ? () => router.push('/(tabs)/orders') : undefined}
+        action="See orders"
+        onPress={() => router.push('/(tabs)/orders')}
       />
       {loading ? (
         <DashboardSkeleton />
@@ -126,9 +124,7 @@ export default function DashboardScreen() {
           </View>
 
           {/* Today's production section */}
-          {canViewOrders && (
-            <>
-              <SectionHeading title="Today’s production" action="View all" onPress={() => router.push('/(tabs)/orders')} />
+          <SectionHeading title="Today’s production" action="View all" onPress={() => router.push('/(tabs)/orders')} />
               {dashboardData.today_production && dashboardData.today_production.length > 0 ? (
                 <ScrollView horizontal showsHorizontalScrollIndicator={true} style={styles.tableScrollView}>
                   <View style={styles.tableContainer}>
@@ -246,14 +242,12 @@ export default function DashboardScreen() {
                   <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>No production scheduled for today.</Text>
                 </View>
               )}
-            </>
-          )}
 
           {/* Department load section */}
           <SectionHeading
             title="Department load"
-            action={canViewOrders ? "Orders" : undefined}
-            onPress={canViewOrders ? () => router.push('/(tabs)/orders') : undefined}
+            action="Orders"
+            onPress={() => router.push('/(tabs)/orders')}
           />
           <View style={[styles.loadCard, { borderColor: colors.border, backgroundColor: colors.card }]}>
             {(() => {

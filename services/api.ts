@@ -177,6 +177,9 @@ export const api = {
   updateQuantities: (id: string, quantities: { launch_qty?: number; final_qty?: number; failed_qty?: number }) =>
     apiRequest(`/orders/${id}/quantities`, { method: 'PUT', body: quantities }),
 
+  updateFilmApplied: (id: string, filmApplied: boolean) =>
+    apiRequest(`/orders/${id}/film-applied`, { method: 'PUT', body: { film_applied: filmApplied } }),
+
   getInventory: (params: { search?: string; status?: string; page?: number; per_page?: number } = {}) =>
     apiRequest('/inventory', { query: params }),
 

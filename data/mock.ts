@@ -44,6 +44,7 @@ export type Job = {
   tool: string;
   status: JobStatus;
   film: boolean;
+  filmApplied?: boolean;
   orderNumber: string;
   client: string;
   department: string;
