@@ -155,6 +155,8 @@ export default function DashboardScreen() {
                                   maskStr.includes('black') ? '#111827' :
                                     maskStr.includes('white') ? '#6b7280' :
                                       '#374151'; // Default text color if no valid mask color found
+                      const isFilmApplied = Boolean(job.filmApplied ?? (job as any).film_applied ?? job.film ?? false);
+                      const panelQtyValue = (job as any).panelQty ?? (job as any).panel_qty ?? (job as any).panel ?? 0;
                       return (
                         <Pressable
                           key={job.id}
@@ -181,7 +183,7 @@ export default function DashboardScreen() {
 
                           <View style={[styles.tableCell, { width: 70 }]}>
                             <Text style={styles.tableCellText}>
-                              {job.film ? 'TRUE' : 'FALSE'}
+                              {isFilmApplied ? 'TRUE' : 'FALSE'}
                             </Text>
                           </View>
 
@@ -217,7 +219,7 @@ export default function DashboardScreen() {
 
                           <View style={[styles.tableCell, { width: 70 }]}>
                             <Text style={styles.tableCellText}>
-                              {(job as any).panel || '—'}
+                              {panelQtyValue}
                             </Text>
                           </View>
 
@@ -315,15 +317,69 @@ export default function DashboardScreen() {
           {/* Mask colors section */}
           <SectionHeading title="Mask colors" />
           <View style={[styles.maskCard, { borderColor: colors.border, backgroundColor: colors.card }]}>
-            {dashboardData.mask_colors.map((item) => (
-              <View key={item.name} style={styles.maskRow}>
-                <View style={styles.maskLabel}>
-                  <View style={[styles.loadDot, { backgroundColor: item.color || '#2fa34a' }]} />
-                  <Text style={styles.loadText}>{item.name}</Text>
+            {(() => {
+              const ALL_MASK_COLORS = [
+                { name: 'Green', color: '#22c55e' },
+                { name: 'Purple', color: '#9333ea' },
+                { name: 'Red', color: '#ef4444' },
+                { name: 'Yellow', color: '#eab308' },
+                { name: 'Blue', color: '#3b82f6' },
+                { name: 'White', color: '#ffffff', borderColor: '#d1d5db' },
+                { name: 'Black', color: '#18181b' },
+              ];
+
+              const countMap = new Map<string, number>();
+              const extraColors: { name: string; count: number; color: string }[] = [];
+
+              (dashboardData.mask_colors || []).forEach((item) => {
+                if (item && item.name) {
+                  const key = item.name.trim().toLowerCase();
+                  countMap.set(key, item.count || 0);
+                  const isKnown = ALL_MASK_COLORS.some((c) => c.name.toLowerCase() === key);
+                  if (!isKnown) {
+                    extraColors.push(item);
+                  }
+                }
+              });
+
+              const listToRender = [
+                ...ALL_MASK_COLORS.map((c) => ({
+                  ...c,
+                  count: countMap.get(c.name.toLowerCase()) ?? 0,
+                })),
+                ...extraColors.map((c) => ({
+                  name: c.name,
+                  color: c.color || '#2fa34a',
+                  borderColor: c.name.toLowerCase() === 'white' ? '#d1d5db' : undefined,
+                  count: c.count || 0,
+                })),
+              ];
+
+              return listToRender.map((item, idx) => (
+                <View
+                  key={item.name}
+                  style={[
+                    styles.maskRow,
+                    idx === listToRender.length - 1 && { borderBottomWidth: 0 },
+                  ]}
+                >
+                  <View style={styles.maskLabel}>
+                    <View
+                      style={[
+                        styles.loadDot,
+                        {
+                          backgroundColor: item.color,
+                          borderWidth: item.borderColor ? 1 : 0,
+                          borderColor: item.borderColor || 'transparent',
+                        },
+                      ]}
+                    />
+                    <Text style={styles.loadText}>{item.name}</Text>
+                  </View>
+                  <Text style={[styles.loadCount, { color: colors.foreground }]}>{item.count}</Text>
                 </View>
-                <Text style={[styles.loadCount, { color: colors.foreground }]}>{item.count}</Text>
-              </View>
-            ))}
+              ));
+            })()}
           </View>
         </>
       )}

@@ -25,23 +25,34 @@ function RootLayoutNav() {
   const { hydrated, isAuthenticated } = useApp();
   const segments = useSegments();
   const router = useRouter();
+  const isNavigatingRef = React.useRef(false);
 
   useEffect(() => {
     if (!hydrated) return;
 
     const currentSegment = (segments[0] as string) || '';
-    const inTabsGroup = currentSegment === '(tabs)';
+    const isPublicRoute = currentSegment === '' || currentSegment === 'index';
 
-    if (!isAuthenticated) {
-      if (inTabsGroup || currentSegment === 'order' || currentSegment === 'scanner' || currentSegment === 'notifications') {
-        console.log('[AUTH] User is unauthenticated. Redirecting to Login screen.');
+    if (!isAuthenticated && !isPublicRoute) {
+      if (!isNavigatingRef.current) {
+        isNavigatingRef.current = true;
+        console.log(`[AUTH] Unauthenticated access attempt to route segment "${currentSegment}". Redirecting to Login.`);
         router.replace('/');
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 300);
       }
-    } else if (isAuthenticated && (!currentSegment || currentSegment === 'index')) {
-      console.log('[AUTH] Authenticated user on Login screen. Redirecting to Dashboard.');
-      router.replace('/(tabs)');
+    } else if (isAuthenticated && isPublicRoute) {
+      if (!isNavigatingRef.current) {
+        isNavigatingRef.current = true;
+        console.log('[AUTH] Authenticated user on public route. Redirecting to Dashboard.');
+        router.replace('/(tabs)');
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 300);
+      }
     }
-  }, [hydrated, isAuthenticated, segments, router]);
+  }, [hydrated, isAuthenticated, segments]);
 
   if (!hydrated) {
     return (

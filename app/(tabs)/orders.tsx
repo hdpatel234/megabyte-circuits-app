@@ -188,6 +188,8 @@ export default function OrdersScreen() {
                             maskStr.includes('black') ? '#111827' :
                               maskStr.includes('white') ? '#6b7280' :
                                 '#374151'; // Default text color if no valid mask color found
+                const isFilmApplied = Boolean(job.filmApplied ?? (job as any).film_applied ?? job.film ?? false);
+                const panelQtyValue = (job as any).panelQty ?? (job as any).panel_qty ?? (job as any).panel ?? 0;
                 return (
                   <Pressable
                     key={job.id}
@@ -214,7 +216,7 @@ export default function OrdersScreen() {
 
                     <View style={[styles.tableCell, { width: 70 }]}>
                       <Text style={styles.tableCellText}>
-                        {job.film ? 'TRUE' : 'FALSE'}
+                        {isFilmApplied ? 'TRUE' : 'FALSE'}
                       </Text>
                     </View>
 
@@ -250,7 +252,7 @@ export default function OrdersScreen() {
 
                     <View style={[styles.tableCell, { width: 70 }]}>
                       <Text style={styles.tableCellText}>
-                        {(job as any).panelQty ?? (job as any).panel ?? 0}
+                        {panelQtyValue}
                       </Text>
                     </View>
 

@@ -88,13 +88,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
         if (active) {
           if (token) {
-            console.log('[AUTH] Session found');
-            setIsAuthenticated(true);
+            console.log('[AUTH] Session found in local storage, validating...');
             setPermissions(perms);
             if (storedUser) {
               try { setUser(JSON.parse(storedUser)); } catch {}
             }
-            await refreshBootstrap();
+            const res = await api.getBootstrap();
+            if (res.success && res.data) {
+              console.log('[AUTH] Token validated successfully with backend');
+              setIsAuthenticated(true);
+              if (res.data.user) setUser(res.data.user);
+              if (res.data.permissions) {
+                setPermissions(res.data.permissions);
+                await AsyncStorage.setItem('megabyte_user_permissions', JSON.stringify(res.data.permissions));
+              }
+              setBootstrapData(res.data);
+              if (typeof res.data.notification_count === 'number') {
+                setNotificationCount(res.data.notification_count);
+              }
+            } else if (!res.success && res.message && (res.message.includes('Session expired') || res.message.includes('Unauthenticated'))) {
+              console.log('[AUTH] Token rejected by backend. Clearing auth session.');
+              await clearAuthToken();
+              setIsAuthenticated(false);
+              setUser(null);
+              setPermissions([]);
+            } else {
+              console.log('[AUTH] Backend offline or unreachable. Using stored session info.');
+              setIsAuthenticated(true);
+            }
           } else {
             console.log('[AUTH] No session found');
             setIsAuthenticated(false);

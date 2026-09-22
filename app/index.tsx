@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,18 +19,16 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  React.useEffect(() => {
-    if (hydrated && isAuthenticated) {
-      router.replace('/(tabs)');
-    }
-  }, [hydrated, isAuthenticated, router]);
-
-  if (!hydrated || isAuthenticated) {
+  if (!hydrated) {
     return (
       <View style={[styles.loading, { backgroundColor: colors.background }]}>
         <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
+  }
+
+  if (isAuthenticated) {
+    return <Redirect href="/(tabs)" />;
   }
 
   const submit = async () => {

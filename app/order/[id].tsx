@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,7 +31,10 @@ export default function OrderDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { jobs, updateJobStatus } = useApp();
+  const { jobs, updateJobStatus, hydrated, isAuthenticated } = useApp();
+
+  if (!hydrated) return null;
+  if (!isAuthenticated) return <Redirect href="/" />;
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

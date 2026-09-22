@@ -4,7 +4,7 @@ import { useColors } from '@/hooks/useColors';
 import { Feather } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { isLiquidGlassAvailable } from 'expo-glass-effect';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { SymbolView } from 'expo-symbols';
 import { useApp } from '@/context/AppContext';
@@ -92,11 +92,25 @@ function ClassicTabLayout() {
           tabBarIcon: ({ color }) => <Feather name="user" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="inventory"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
 
 export default function TabLayout() {
+  const { hydrated, isAuthenticated } = useApp();
+
+  if (!hydrated) return null;
+
+  if (!isAuthenticated) {
+    return <Redirect href="/" />;
+  }
+
   if (isLiquidGlassAvailable()) {
     return <NativeTabLayout />;
   }
