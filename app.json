@@ -4,7 +4,7 @@
     "slug": "megabyte-pcb-operations",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/company-app-icon.png",
+    "icon": "./assets/images/favicon.png",
     "scheme": "megabyte",
     "userInterfaceStyle": "automatic",
     "ios": {
@@ -14,7 +14,7 @@
       "package": "com.hdpatel234.megabyte",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/company-app-icon.png",
+        "foregroundImage": "./assets/images/favicon.png",
         "backgroundColor": "#0c1a14"
       },
       "permissions": [
@@ -25,7 +25,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/images/company-app-icon.png"
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       "expo-router"
