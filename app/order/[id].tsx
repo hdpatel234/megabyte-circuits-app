@@ -273,6 +273,15 @@ export default function OrderDetailScreen() {
         />
 
         {/* Hero Details Card with Mask Color Accent */}
+        {job?.combo ? (
+          <View style={{ marginBottom: 12, paddingHorizontal: 14, paddingVertical: 10, backgroundColor: '#eff6ff', borderRadius: 12, borderWidth: 1, borderColor: '#bfdbfe', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Feather name="layers" size={16} color="#1d4ed8" />
+            <Text style={{ fontSize: 13, fontWeight: '700', color: '#1e40af' }}>
+              Combo Orders: <Text style={{ fontWeight: '600' }}>{job.combo}</Text>
+            </Text>
+          </View>
+        ) : null}
+
         <View style={[styles.heroCard, { backgroundColor: cardBgColor, borderColor: cardBorderColor }]}>
           {/* QTY Summary Cards matching Admin Panel (Ordered, Launched, Final, Failed) */}
           <View style={styles.qtyHeaderRow}>

@@ -59,6 +59,8 @@ export type Job = {
   finalQty?: number;
   failedQty?: number;
   pendingQty?: number;
+  combo?: string | null;
+  combo_orders?: Array<{ id: number; order_number: string; status?: string }>;
   lastUpdate: string;
 };
 
