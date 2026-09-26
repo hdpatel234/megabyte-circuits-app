@@ -64,10 +64,14 @@ async function apiRequest<T = any>(
     }
 
     const token = await getAuthToken();
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-    let url = `${config.baseUrl}${cleanEndpoint}`;
+    let cleanEndpoint = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+    if (cleanEndpoint.startsWith('/api/mobile/v1')) {
+      cleanEndpoint = cleanEndpoint.replace('/api/mobile/v1', '');
+    } else if (cleanEndpoint.startsWith('/mobile/v1')) {
+      cleanEndpoint = cleanEndpoint.replace('/mobile/v1', '');
+    }
 
-    console.log(`[API] ${options.method || 'GET'} ${url}`);
+    let url = `${config.baseUrl}${cleanEndpoint}`;
 
     if (options.query) {
       const params = new URLSearchParams();
@@ -92,7 +96,7 @@ async function apiRequest<T = any>(
     }
 
     const method = options.method || 'GET';
-    console.log(`[API] ${method} ${cleanEndpoint}`);
+    console.log(`[API] ${method} ${url}`);
 
     const fetchOptions: RequestInit = {
       method,
@@ -103,7 +107,25 @@ async function apiRequest<T = any>(
       fetchOptions.body = JSON.stringify(options.body);
     }
 
-    const response = await fetch(url, fetchOptions);
+    let timeoutTimer: any;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutTimer = setTimeout(() => {
+        const err: any = new Error('Request timed out. Please check your internet connection.');
+        err.name = 'TimeoutError';
+        reject(err);
+      }, 30000);
+    });
+
+    let response: Response;
+    try {
+      response = await Promise.race([
+        fetch(url, fetchOptions),
+        timeoutPromise,
+      ]);
+    } finally {
+      clearTimeout(timeoutTimer);
+    }
+
     console.log(`[API] Response ${response.status} ${cleanEndpoint}`);
 
     if (response.status === 401) {
@@ -147,6 +169,12 @@ async function apiRequest<T = any>(
     return json;
   } catch (error: any) {
     console.error(`[API] Request failed ${endpoint}:`, error.message || error);
+    if (error.name === 'AbortError' || error.name === 'TimeoutError') {
+      return {
+        success: false,
+        message: 'Request timed out. Please check your internet connection and try again.',
+      };
+    }
     return {
       success: false,
       message: error.message || 'Network error. Please check your connection.',
@@ -157,7 +185,7 @@ async function apiRequest<T = any>(
 // API Services
 export const api = {
   login: (username: string, password: string) =>
-    apiRequest('/auth/login', { method: 'POST', body: { username, password } }),
+    apiRequest('/auth/login', { method: 'POST', body: { username, email: username, password } }),
 
   logout: () => apiRequest('/auth/logout', { method: 'POST' }),
 

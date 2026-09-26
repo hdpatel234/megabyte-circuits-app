@@ -7,7 +7,7 @@ export type ApiConfig = {
 };
 
 export function getApiConfig(): ApiConfig {
-  const envUrl = "https://api.megabytecircuit.com";
+  const envUrl = process.env.EXPO_PUBLIC_API_URL || "https://api.megabytecircuit.com";
 
   if (!envUrl || !envUrl.trim()) {
     return {
